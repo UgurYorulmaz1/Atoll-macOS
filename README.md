@@ -2,15 +2,13 @@
   <img src="docs/assets/banner.png" alt="Atoll Island: a Dynamic Island for the Mac, hanging from the top of the screen above an expanded music player" width="100%">
 </p>
 
-<h3 align="center">The Dynamic Island, for your Mac.</h3>
-
 <p align="center">
   A pill at the top of your screen that springs open for music, lyrics, notifications, volume, AirPlay, a file shelf, downloads and more.<br>
   Native, tiny and free. Written in <b>Rust + <a href="https://tauri.app">Tauri 2</a></b>, with no Electron.
 </p>
 
 <p align="center">
-  <a href="https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest/download/Atoll-Island_0.1.0_macOS_universal.dmg"><img src="https://img.shields.io/badge/Download_for_macOS-.dmg_·_11_MB-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS" height="44"></a>
+  <a href="https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest/download/Atoll-Island_0.1.0_macOS_universal.dmg"><img src="docs/assets/download.png" alt="Download for macOS: v0.1.0, Apple Silicon and Intel, 11 MB" width="360"></a>
 </p>
 
 <p align="center">
