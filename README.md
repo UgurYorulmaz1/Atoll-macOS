@@ -53,6 +53,8 @@ npx @tauri-apps/cli@2 build --bundles msi
 
 Native port for **macOS 13 Ventura and later** (universal binary: Apple Silicon + Intel). Same UI, same settings, all 12 languages; the platform layer lives in `src-tauri/src/macos/`.
 
+**Download:** get `Atoll-Island_0.1.0_macOS_universal.dmg` from the [Releases](https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest) page and drag the app into Applications.
+
 ### What is different on the Mac
 - **Notch-aware:** on MacBooks with a notch the idle island covers the notch exactly and the compact player puts the artwork and the equalizer on both sides of it. On other displays the island hangs from the top edge of the screen over the menu bar (set *Top offset* above 0 for the floating Windows look).
 - **Every Space, over fullscreen apps:** the island sits above the menu bar, follows you to every desktop and over fullscreen apps; *Auto-hide in fullscreen* hides it until the cursor touches the top edge.
