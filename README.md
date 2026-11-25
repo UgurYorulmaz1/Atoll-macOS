@@ -1,160 +1,275 @@
-# Atoll Island
+<p align="center">
+  <img src="docs/assets/banner.png" alt="Atoll Island: a Dynamic Island for the Mac, hanging from the top of the screen above an expanded music player" width="100%">
+</p>
 
-![Platform](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D6?logo=windows&logoColor=white)
-![macOS](https://img.shields.io/badge/macOS-13%20Ventura%2B-000000?logo=apple&logoColor=white)
-![Built with Rust](https://img.shields.io/badge/Rust-Tauri%202-orange?logo=rust&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-12-30d158)
-![License](https://img.shields.io/badge/License-GPL--3.0-blue)
+<h3 align="center">The Dynamic Island, for your Mac.</h3>
 
-An animated **Dynamic Island / Now Bar** for Windows 10 and 11 **and macOS 13 Ventura or later** (see [macOS](#macos)), written in pure **Rust + [Tauri 2](https://tauri.app)**. A compact pill sits at the top center of your screen and springs open for media, lyrics, notifications, volume, a file shelf, downloads and more. **No Electron, no PowerShell.**
+<p align="center">
+  A pill at the top of your screen that springs open for music, lyrics, notifications, volume, AirPlay, a file shelf, downloads and more.<br>
+  Native, tiny and free. Written in <b>Rust + <a href="https://tauri.app">Tauri 2</a></b>, with no Electron.
+</p>
 
-> **Beta:** Features are tested in daily use. If you find a bug or have an idea, please open an issue.
+<p align="center">
+  <a href="https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest/download/Atoll-Island_0.1.0_macOS_universal.dmg"><img src="https://img.shields.io/badge/Download_for_macOS-.dmg_·_11_MB-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS" height="44"></a>
+</p>
 
-<p align="center"><img src="docs/demo.gif" alt="Atoll Island demo: idle clock, now playing, expanded player, word-by-word lyrics, volume, notification, a second media source and the file shelf with clipboard history" width="520"></p>
+<p align="center">
+  <a href="https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest"><img src="https://img.shields.io/github/v/release/UgurYorulmaz1/Atoll-macOS?style=flat-square&label=release&color=8a5cf6" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/macOS-13_Ventura_and_later-111111?style=flat-square&logo=apple&logoColor=white" alt="macOS 13 and later">
+  <img src="https://img.shields.io/badge/Apple_Silicon_+_Intel-universal-5e5ce6?style=flat-square" alt="Universal binary">
+  <img src="https://img.shields.io/badge/Rust-Tauri_2-f46623?style=flat-square&logo=rust&logoColor=white" alt="Rust and Tauri 2">
+  <img src="https://img.shields.io/badge/languages-12-30d158?style=flat-square" alt="12 languages">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-0a84ff?style=flat-square" alt="GPL-3.0"></a>
+</p>
 
-## Screenshots
+<p align="center">
+  <a href="#-features">Features</a> ·
+  <a href="#-apple-music">Apple Music</a> ·
+  <a href="#-made-for-the-mac">Made for the Mac</a> ·
+  <a href="#-install">Install</a> ·
+  <a href="#-permissions">Permissions</a> ·
+  <a href="#-faq">FAQ</a> ·
+  <a href="#-build-from-source">Build</a>
+</p>
+
+<p align="center">
+  <img src="docs/demo.gif" alt="Atoll Island in action: idle clock, now playing, expanded player, word-by-word lyrics, volume, a notification, a second media source and the file shelf" width="520">
+</p>
+
+---
+
+## ✨ Features
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/expanded.png" alt="Expanded player with artwork-tinted background">
+      <h4>Now playing, beautifully</h4>
+      The artwork tints the island, the equalizer moves to the beat, and you can scrub, shuffle and repeat. Works with Apple Music and Spotify, and on macOS 13 to 15.3 also with Safari, Chrome, Podcasts, VLC and IINA.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/lyrics.png" alt="Word-by-word synced lyrics">
+      <h4>Synced lyrics, word by word</h4>
+      Lyrics from <a href="https://lrclib.net">LRCLIB</a> scroll along line by line or word by word. Click a line to jump there, and nudge the timing with <code>−</code> / <code>+</code>.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="docs/notification.png" alt="A notification on the island">
+      <h4>Notifications</h4>
+      New Notification Center banners appear on the island. Click to expand long messages, open the app or dismiss.
+    </td>
+    <td valign="top">
+      <img src="docs/call.png" alt="Incoming call card">
+      <h4>Incoming calls</h4>
+      A live call card for FaceTime, WhatsApp, Telegram, Teams, Zoom and Discord. It closes by itself when the call is answered or missed.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="docs/volume.png" alt="Volume on the island">
+      <h4>A better volume HUD</h4>
+      The volume keys show the island instead of the system HUD; hold <kbd>⌥</kbd><kbd>⇧</kbd> for fine steps. Scroll to change the volume, or right-click the speaker to move between the Mac, AirPods and your display.
+    </td>
+    <td valign="top">
+      <img src="docs/two-sources.png" alt="Two players at once">
+      <h4>Two sources at once</h4>
+      When two players run together, a small bubble shows the second one; click it to swap them. With <i>Single source</i> mode, starting one player pauses the other.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="docs/drop.png" alt="Dropping files on the island">
+      <h4>Drop files on the island</h4>
+      Drag anything from Finder onto the island to park it there. Files are kept on disk or in RAM, with a size limit you set.
+    </td>
+    <td valign="top">
+      <img src="docs/shelf.png" alt="File shelf with clipboard history">
+      <h4>Shelf and clipboard history</h4>
+      Quick Look previews, drag out to Finder, Mail or Messages, and <kbd>⌘</kbd><kbd>V</kbd>. Copied files, screenshots and text land here; password managers are left out.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="docs/downloads.png" alt="Download progress">
+      <h4>Downloads</h4>
+      Real progress for Safari, Chrome, Edge, Arc, Brave, Vivaldi and Opera, plus Steam and Epic. When a download finishes, open it or add it to the shelf.
+    </td>
+    <td valign="top">
+      <img src="docs/idle.png" alt="Idle clock with weather">
+      <h4>Clock, weather and rain alerts</h4>
+      While idle, the island shows the time and temperature, and warns you when rain is about to start (<a href="https://open-meteo.com">Open-Meteo</a>, no account needed).
+    </td>
+  </tr>
+</table>
+
+<sub>Screenshots are rendered from the real UI with sample data; the tracks, artwork and messages are made up.</sub>
+
+---
+
+## 🎵 Apple Music
+
+Apple Music gets the same extras as Spotify, without any extra account or API key.
 
 | | |
-|:---:|:---:|
-| <img src="docs/expanded.png" alt="Expanded media player" width="400"><br>**Expanded player** with artwork-tinted background | <img src="docs/lyrics.png" alt="Word-by-word synced lyrics" width="400"><br>**Word-by-word synced lyrics** |
-| <img src="docs/notification.png" alt="Notification" width="400"><br>**Notifications** | <img src="docs/call.png" alt="Incoming call card" width="400"><br>**Incoming call card** |
-| <img src="docs/two-sources.png" alt="Two media sources" width="400"><br>**Two sources** (main pill + bubble) | <img src="docs/volume.png" alt="Volume indicator" width="400"><br>**Volume** (replaces the Windows OSD) |
-| <img src="docs/idle.png" alt="Idle clock with weather" width="400"><br>**Idle** clock and weather | <img src="docs/downloads.png" alt="Download progress" width="400"><br>**Download progress** (Steam / browsers) |
-| <img src="docs/drop.png" alt="Drop files on the shelf" width="400"><br>**Drop files** onto the island | <img src="docs/shelf.png" alt="File shelf with clipboard history" width="400"><br>**Shelf + clipboard history** (files, screenshots, text) |
+|---|---|
+| ❤️ **Favorite** | Heart the playing song straight from the island. It stays in sync with the Music app. |
+| 📡 **AirPlay** | Pick HomePod, Apple TV or any AirPlay speaker. <kbd>⌥</kbd>-click to add more rooms. |
+| 🔎 **Library search** | Search your library from the island and click a result to play it. |
+| 📜 **Up Next** | See what comes next in the playlist or album, and jump to any track. |
+| 🏷️ **Playing from** | The expanded view shows which playlist the song is playing from. |
+| ⋯ **More menu** | A native menu to add the song to a playlist, rate it with stars, mark it *Suggest Less* or show it in Music. |
 
-<sub>Screenshots are rendered from the real UI with sample data; the track, artwork and messages are made up.</sub>
-
----
-
-## Installation
-
-### 1. MSI installer (recommended)
-Download the latest `.msi` installer (`en-US` or `tr-TR`) from the [Releases](../../releases) page and run it.
-- Creates a Start Menu shortcut and an Add/Remove Programs entry.
-- Installs WebView2 automatically if it is missing (it ships with Windows 11).
-
-### 2. Build from source
-Requirements: Windows 10/11, [Rust](https://rustup.rs) (stable), Visual Studio C++ Build Tools, Node.js (only for packaging the `.msi`).
-
-```powershell
-git clone https://github.com/UgurYorulmaz1/Atoll-Island.git
-cd Atoll-Island\src-tauri
-
-# Build the executable only:
-cargo build --release
-
-# Build the MSI installer:
-npx @tauri-apps/cli@2 build --bundles msi
-```
+> [!TIP]
+> Spotify gets its own extras too: like, queue, search, autoplay of similar songs and Spotify Connect. See [Connecting Spotify](#-connecting-spotify-optional).
 
 ---
 
-## macOS
+## 🍎 Made for the Mac
 
-Native port for **macOS 13 Ventura and later** (universal binary: Apple Silicon + Intel). Same UI, same settings, all 12 languages; the platform layer lives in `src-tauri/src/macos/`.
+<table>
+  <tr>
+    <td width="33%" valign="top"><b>Hugs the notch</b><br>On MacBooks with a notch, the idle island covers it exactly, and the compact player puts the artwork and equalizer on either side. On other displays it hangs from the top edge like a virtual notch.</td>
+    <td width="33%" valign="top"><b>Always there</b><br>Above the menu bar, on every Space and over fullscreen apps. <i>Auto-hide in fullscreen</i> brings it back when the cursor touches the top edge.</td>
+    <td width="33%" valign="top"><b>Never in the way</b><br>Clicks pass through everywhere except the island itself. After you click it, keyboard focus goes back to the app you were typing in.</td>
+  </tr>
+  <tr>
+    <td valign="top"><b>A real menu bar app</b><br>No Dock icon. The menu bar icon adapts to light and dark menu bars and offers Settings, <i>Open at Login</i> and Quit.</td>
+    <td valign="top"><b>Quick Look everywhere</b><br>Shelf items show real previews: PDF pages, video frames and documents.</td>
+    <td valign="top"><b>Your hardware, live</b><br>CPU, RAM, network, and GPU load and temperature on Apple, AMD, Intel and NVIDIA GPUs. AirPods and Magic Keyboard, Mouse and Trackpad batteries.</td>
+  </tr>
+  <tr>
+    <td valign="top"><b>Privacy dots</b><br>Orange when a microphone is in use and green for the camera, plus a red dot while OBS or QuickTime is recording.</td>
+    <td valign="top"><b>One shortcut</b><br><kbd>⌃</kbd><kbd>⇧</kbd><kbd>Space</kbd> opens the island from anywhere, and it needs no permission.</td>
+    <td valign="top"><b>Light on resources</b><br>Features you turn off never wake up and use no CPU, disk or network. It is a universal binary, native on Apple Silicon and Intel.</td>
+  </tr>
+</table>
 
-**Download:** get `Atoll-Island_0.1.0_macOS_universal.dmg` from the [Releases](https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest) page and drag the app into Applications.
+<details>
+<summary><b>And more…</b></summary>
 
-### What is different on the Mac
-- **Notch-aware:** on MacBooks with a notch the idle island covers the notch exactly and the compact player puts the artwork and the equalizer on both sides of it. On other displays the island hangs from the top edge of the screen over the menu bar (set *Top offset* above 0 for the floating Windows look).
-- **Every Space, over fullscreen apps:** the island sits above the menu bar, follows you to every desktop and over fullscreen apps; *Auto-hide in fullscreen* hides it until the cursor touches the top edge.
-- **Menu bar app:** no Dock icon. The menu bar icon (a template image, so it adapts to light/dark menu bars) opens Settings, *Open at Login* and *Quit*. After you click the island, keyboard focus goes back to the app you were typing in.
-- **Media:** Apple Music and Spotify through their AppleScript dictionaries (play/pause, next/previous, seek, shuffle, repeat, artwork). With Apple Music playing, the island's panels also offer a **heart** that favorites the track, an **AirPlay** device picker (click switches the output, ⌥-click adds a device for multi-room) and **library search** with click to play. **Up Next** lists the following tracks of the playing playlist, or of the album when Music does not report a playlist. The expanded view shows where the track is **playing from**. A native **⋯ menu** (also on right-click of the heart) adds the track to a playlist, sets a star rating, marks it *Suggest Less* or shows it in Music. None of these need an account or an API key. Other players (Safari, Chrome, Podcasts, VLC, IINA ...) through the system Now Playing service on macOS 13 to 15.3.
-- **Volume HUD:** with Accessibility access the volume keys show the island instead of the macOS HUD, in the same 1/16 steps; hold **⌥⇧** for fine 1/64 steps. Right-click the speaker for the quick output switcher (Mac speakers ↔ AirPods ↔ display).
-- **Shelf:** **Quick Look** previews (PDF pages, video frames, documents), native drag out to Finder, Mail, Messages and browsers, `⌘V` paste. Clipboard history honours the nspasteboard.org privacy markers, so 1Password, Bitwarden, KeePassXC and similar managers stay out of it.
-- **Downloads:** Safari downloads show a real percentage, read from the `.download` package. Chrome, Edge, Brave, Arc, Vivaldi and Opera use their History database, and Steam and Epic are also supported.
-- **System monitor:** CPU, RAM (counted like Activity Monitor), network, and GPU load and temperature from IOKit on Apple, AMD, Intel and NVIDIA GPUs. Microphone and camera dots come from CoreAudio and CoreMediaIO. The screen-recording dot covers OBS and QuickTime recordings.
-- **Batteries:** AirPods (lowest of left and right), Beats, and Magic Keyboard, Mouse and Trackpad.
-- **Shortcut:** **⌃⇧Space** toggles the island. It uses the Carbon hot-key API, so it needs no permission.
+- **12 languages:** Turkish, English, German, French, Spanish, Italian, Portuguese, Russian, Arabic, Japanese, Korean and Chinese, including menus and dates.
+- **Simple or advanced Settings** with category tabs and search.
+- **Customization:** black, glass or dark gray background, accent color, top offset (0–48 px), idle opacity with Auto-Dim, size or custom scale (75–115%), animation speed, 24h or 12h clock, and a choice of display.
+- **Listening stats:** daily and weekly listening time, a 7-day chart, and top artists and tracks, stored only on your Mac.
 
-### Permissions (all optional)
-| Permission | Used for | Where |
+</details>
+
+---
+
+## 📦 Install
+
+1. **Download** [`Atoll-Island_0.1.0_macOS_universal.dmg`](https://github.com/UgurYorulmaz1/Atoll-macOS/releases/latest/download/Atoll-Island_0.1.0_macOS_universal.dmg) and drag **Atoll Island** into **Applications**.
+2. **First launch:** the app is free and not notarized by Apple, so right-click it and choose **Open** once. Or run:
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/Atoll Island.app"
+   ```
+3. **Done.** The island appears at the top of the screen, and its icon sits in the menu bar. Click the icon for Settings.
+
+> [!NOTE]
+> Requires **macOS 13 Ventura or later** on Apple Silicon or Intel.
+
+## 🔐 Permissions
+
+All permissions are optional. The island works without them; each one unlocks one feature.
+
+| Permission | What it unlocks | How |
 |---|---|---|
-| Automation → Music / Spotify | now playing + controls | asked automatically on first use |
-| Accessibility | volume keys show the island instead of the system HUD | Settings → General → *Open Settings* |
-| Full Disk Access | mirroring Notification Center banners (macOS keeps them in a private database) | Settings → General → *Open Settings* |
-| Downloads folder | download progress | asked when *Download progress* is turned on |
+| **Automation** → Music / Spotify | Now playing and playback controls | macOS asks on first use |
+| **Accessibility** | Volume keys show the island instead of the system HUD | Settings → General → *Open Settings* |
+| **Full Disk Access** | Notification Center banners on the island | Settings → General → *Open Settings* |
+| **Downloads folder** | Download progress | macOS asks when you turn the feature on |
 
-### Build on macOS
-Requirements: macOS 13+, Xcode Command Line Tools, [Rust](https://rustup.rs) stable.
+## 🔗 Connecting Spotify (optional)
+
+Basic controls work without this. Connecting adds like, queue, search and Spotify Connect.
+
+1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
+2. Add `http://127.0.0.1:8989/login` as a **Redirect URI**.
+3. Paste the app's **Client ID** into **Atoll Island → Settings → Media**, press **Save**, then **Connect with Spotify**.
+
+Spotify requires the account owner to have **Premium** for apps in development mode. No client secret is needed, because sign-in uses PKCE.
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><b>Why does macOS say the app is from an unidentified developer?</b></summary>
+
+Atoll Island is free and open source and is not notarized with a paid Apple Developer account. Right-click the app and choose **Open** once, or use the `xattr` command from [Install](#-install).
+</details>
+
+<details>
+<summary><b>Why don't songs from Safari, Chrome or YouTube show up?</b></summary>
+
+Since macOS 15.4, Apple only lets Apple-signed apps read the system's Now Playing information. On macOS 13 to 15.3 browsers and other players appear. On newer versions Apple Music and Spotify keep working, because they are read directly.
+</details>
+
+<details>
+<summary><b>Why does the island need Full Disk Access for notifications?</b></summary>
+
+macOS has no public API for reading other apps' notifications. Atoll Island reads Notification Center's own database, read-only, and that file is protected. Without the permission everything else still works.
+</details>
+
+<details>
+<summary><b>Does it work on Macs without a notch?</b></summary>
+
+Yes. On other displays the island hangs from the top edge of the screen over the menu bar. Set **Top offset** above 0 if you prefer it floating below the edge.
+</details>
+
+<details>
+<summary><b>Is there a Windows version?</b></summary>
+
+Yes: <a href="https://github.com/UgurYorulmaz1/Atoll-Island">Atoll Island for Windows 10 and 11</a>. This repository builds both, and the Windows code lives next to the macOS layer.
+</details>
+
+<details>
+<summary><b>Why can't the privacy dots tell me which app uses the microphone?</b></summary>
+
+macOS reports that a microphone or camera is in use, but has no public API that names the app. The system's own indicator in Control Center shows it.
+</details>
+
+---
+
+## 🛠 Build from source
+
+Requirements: macOS 13 or later, Xcode Command Line Tools and [Rust](https://rustup.rs) stable.
 
 ```bash
-cd src-tauri
-cargo install tauri-cli --version "^2" --locked      # once
+git clone https://github.com/UgurYorulmaz1/Atoll-macOS.git
+cd Atoll-macOS/src-tauri
+cargo install tauri-cli --version "^2" --locked          # once
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
 cargo tauri build --target universal-apple-darwin --bundles app,dmg
 ```
 
-The `.app` and `.dmg` are written to `src-tauri/target/universal-apple-darwin/release/bundle/`. The build is ad-hoc signed. On first launch, right-click the app and choose **Open**, or run `xattr -dr com.apple.quarantine "/Applications/Atoll Island.app"`.
+The `.app` and `.dmg` are written to `src-tauri/target/universal-apple-darwin/release/bundle/`. For a quick debug run, use `cargo run`.
 
-### Known limits on macOS
-- Since macOS 15.4, Apple only lets Apple-signed apps read the system Now Playing service. On those versions Apple Music and Spotify keep working through AppleScript; browser and other players do not appear.
-- The microphone and camera dots cannot name the app that uses the device, because macOS has no public API for that.
+<details>
+<summary><b>How the code is organized</b></summary>
 
----
+| Path | What |
+|---|---|
+| `ui/` | The island and Settings UI: plain HTML, CSS and JavaScript, with no framework |
+| `src-tauri/src/macos/` | macOS layer: window and notch, CoreAudio, media, notifications, pasteboard, Quick Look, sysmon |
+| `src-tauri/src/applemusic.rs` | Apple Music extras: favorite, AirPlay, search, Up Next and the ⋯ menu |
+| `src-tauri/src/*.rs` | Shared features (settings, shelf, Spotify, lyrics, weather, stats, downloads) and the Windows layer |
+| `src-tauri/tauri.macos.conf.json` | macOS bundle settings: minimum version, signing, DMG |
 
-## Features
+The same module names exist on both systems. On macOS, `main.rs` swaps in the files from `src/macos/` with `#[cfg_attr(target_os = "macos", path = …)]`.
 
-### Media, music and Spotify
-- **Live media controls (SMTC):** Album art, background that follows the cover color, animated equalizer bars, play/pause, previous/next, shuffle/repeat and a draggable progress bar for Spotify, Apple Music, YouTube Music and browsers. Apple Music seeking works through UI Automation.
-- **Two sources (Now Bar):** When two players run at once, the main pill shows one and a small bubble shows the other; click the bubble to swap them.
-- **Single source mode (optional):** Pauses the previous player when a new one starts.
-- **Synced lyrics ([LRCLIB](https://lrclib.net)):** Apple Music style word-by-word or line-by-line lyrics. Click a line to jump there; fine-tune the timing with `− / +`.
-- **Spotify Web API (optional; basic media controls work without it):**
-  - Like (heart), view the play queue and jump straight to any track in it
-  - Search Spotify from the island, add to queue (`+`) and an **`∞ Similar`** autoplay toggle
-  - **Spotify Connect:** One-click switching between PC, phone and speakers
+**Built with:** Rust 2021, Tauri 2, objc2 (AppKit, Foundation), CoreAudio, CoreMediaIO, IOKit, CoreGraphics, MediaRemote, QuickLookThumbnailing, ServiceManagement, `tokio`, `reqwest` and `rusqlite`.
+</details>
 
-### Notifications, calls and volume
-- **Expandable Windows notifications:** Notifications appear in the island; **click to expand** and read long messages, **Open app** brings the right window to the front, or dismiss.
-- **Incoming call card:** Live call card for WhatsApp, Telegram, Teams and Discord voice/video calls.
-- **Volume:** Windows volume keys show in the island instead of the standard Windows OSD. Scroll to change volume, drag the volume bar, and right-click the speaker icon for a quick **audio output switcher** (speakers ↔ headphones).
+## 🔒 Privacy
 
-### Shelf and clipboard
-- **Drag-and-drop file shelf:** Drag files from the desktop or Explorer onto the island, keep them there, then drag them anywhere (`SHDoDragDrop`). Stored on disk or in RAM with a configurable size limit.
-- **Clipboard history:** Text, screenshots and files you copy with `Ctrl+C` land on the shelf automatically (password managers are excluded).
-
-### Downloads, weather and stats
-- **System-wide download tracker:**
-  - **Chrome / Edge / Brave / Opera** (real `%` and speed from the local `History` SQLite database), plus **Steam** and **Epic Games**.
-  - A progress ring next to the compact pill, a list of up to **5** downloads when expanded, and an open / add-to-shelf notification when finished.
-- **Weather and rain alert:** Temperature next to the clock while idle, and a warning if rain starts within the hour ([Open-Meteo](https://open-meteo.com), no API key).
-- **Listening history and weekly summary:** Daily and weekly listening time, a 7-day chart, and your top artists and tracks.
-
-### Hardware, system and privacy
-- **Live system and gaming monitor:** CPU, NVIDIA GPU temperature and load, RAM, and download/upload speed.
-- **Wireless device batteries:** Headphone, keyboard and mouse battery levels over Bluetooth Classic and **BLE GATT (`0x180F`)**, plus a headphones-connected alert.
-- **Privacy and recording dots:** Microphone (orange) and camera (green) indicators, and a screen-recording indicator for OBS and Xbox Game Bar.
-
-### Customization, languages and performance
-- **Zero idle cost and GPU acceleration:** Background features that are turned off never wake up and use **0 CPU / 0 disk / 0 network**. WebView2 GPU rasterization and hardware acceleration are supported.
-- **12 languages:** Turkish, English, German, French, Spanish, Italian, Portuguese, Russian, Arabic, Japanese, Korean and Chinese (including context and tray menus and localized dates).
-- **Simple / Advanced mode and customization:** A one-switch simple Settings view, category tabs and setting search. Background style (Black / Glass / Dark Gray), accent color, top offset (`0–48 px`), idle opacity and Auto-Dim, Windows-matched or custom scaling (`75–115%`), animation speed, `24h / 12h` clock, multi-monitor selection and one-click reset.
-
----
-
-## Connecting Spotify (optional)
-
-1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
-2. Add `http://127.0.0.1:8989/login` as a **Redirect URI**.
-3. Copy the app's **Client ID**, paste it into **Atoll Island → Settings → Spotify** and click **Connect with Spotify**.
-
-> Note: Spotify requires the account owner to have **Premium** for apps in development mode. No `client secret` is needed; sign-in uses PKCE.
-
----
-
-## Tech stack
-
-- **Backend:** Rust (2021), Tauri 2, `windows` 0.62 (Win32 / WinRT: SMTC, Core Audio, UI Automation, SetupAPI, UserNotificationListener, Shell/OLE), `tokio`, `reqwest`, `rusqlite`
-- **Frontend:** Plain HTML5 / CSS3 / vanilla JavaScript (no framework)
-
-## Privacy
-
-- Settings, the shelf and statistics are stored only on your computer (`%APPDATA%\com.island.dynamic`, on macOS `~/Library/Application Support/com.island.dynamic`).
+- Settings, the shelf and statistics stay on your Mac, in `~/Library/Application Support/com.island.dynamic`.
 - For lyrics, only the track title, artist and duration are sent to LRCLIB.
-- When weather is on, `ipwho.is` is used for approximate location and `Open-Meteo` for the forecast.
+- With weather turned on, `ipwho.is` gives an approximate location and Open-Meteo the forecast.
 - Spotify features talk to the Spotify Web API only after you connect your account.
+- Notification Center is read locally and read-only; nothing leaves your Mac.
 
-## License
+## 📄 License
 
-[GPL-3.0](LICENSE)
+[GPL-3.0](LICENSE). Bug reports and ideas are welcome in [Issues](https://github.com/UgurYorulmaz1/Atoll-macOS/issues).
