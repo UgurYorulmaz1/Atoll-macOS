@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Atoll Island",
+  "version": "0.1.0",
+  "identifier": "com.island.dynamic",
+  "build": { "frontendDist": "../ui" },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "windows": [{
+      "label": "main", "url": "index.html", "title": "Atoll Island",
+      "width": 640, "height": 780, "transparent": true, "decorations": false,
+      "alwaysOnTop": true, "skipTaskbar": true, "resizable": false, "shadow": false,
+      "focus": false, "visible": false, "dragDropEnabled": true
+    }],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi"],
+    "icon": ["icons/icon.ico"],
+    "publisher": "Atoll Island",
+    "copyright": "Copyright (c) 2026 Atoll Island",
+    "licenseFile": "LICENSE.rtf",
+    "category": "Utility",
+    "shortDescription": "Animated Dynamic Island / Now Bar for Windows 10 & 11",
+    "longDescription": "Lightweight Rust + Tauri 2 Dynamic Island for Windows featuring live media controls, synced lyrics, Spotify Connect, expandable notifications, drag-and-drop file shelf, real download progress, weather, BLE battery, and 12 languages.",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "wix": {
+        "language": ["tr-TR", "en-US"]
+      }
+    }
+  }
+}

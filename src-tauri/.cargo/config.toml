@@ -1,0 +1,3 @@
+# Build for macOS 13 Ventura and later (also respected by `cargo build`, not only `tauri build`)
+[env]
+MACOSX_DEPLOYMENT_TARGET = "13.0"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Menu bar agent: no Dock icon, no app menu; lives in the menu bar and around the notch -->
+  <key>LSUIElement</key>
+  <true/>
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.utilities</string>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>Atoll Island reads the current track from Music and Spotify and controls playback (play, pause, skip, seek).</string>
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>Atoll Island shows the battery level of your AirPods and other Bluetooth devices.</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>NSSupportsAutomaticGraphicsSwitching</key>
+  <true/>
+</dict>
+</plist>

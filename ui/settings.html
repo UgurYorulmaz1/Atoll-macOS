@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Dynamic Island</title>
+<style>
+  :root { --bg: #0b0b0c; --card: #161618; --line: rgba(255,255,255,.08); --text: #f2f2f4; --dim: rgba(255,255,255,.55);
+    --accent: #0a84ff; --green: #30d158; --red: #ff453a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; font-size: 14px; }
+  body { padding: 20px 22px 28px; user-select: none; background: radial-gradient(600px 260px at 50% -60px, rgba(10,132,255,.10), transparent 70%), var(--bg); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .head-l { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 46px; height: 22px; border-radius: 11px; background: #000; box-shadow: 0 4px 12px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.18); position: relative; }
+  .logo::after { content: ''; position: absolute; left: 8px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+  h1 { font-size: 18px; font-weight: 650; letter-spacing: -.2px; }
+  h1 small { display: block; font-size: 12px; font-weight: 400; color: var(--dim); margin-top: 1px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 14px; overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 22px rgba(0,0,0,.22); }
+  section h2 { font-size: 11.5px; font-weight: 650; letter-spacing: .5px; text-transform: uppercase; color: var(--dim); padding: 13px 16px 5px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 16px; border-top: 1px solid var(--line); transition: background .15s; }
+  .row:hover { background: rgba(255,255,255,.018); }
+  .scale-wrap { display: flex; align-items: center; gap: 10px; min-width: 170px; }
+  .scale-wrap input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
+  .scale-val { font-size: 12.5px; font-weight: 600; color: var(--text); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+  .swatches { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .sw-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0;
+    transition: transform .18s, border-color .18s; position: relative; }
+  .sw-dot:hover { transform: scale(1.12); }
+  .sw-dot.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.22); }
+  .sw-dot.auto { background: conic-gradient(#0a84ff, #30d158, #ff9f0a, #ff375f, #bf5af2, #0a84ff); }
+  body.easy [data-adv="1"] { display: none !important; }
+  section h2 + .row { border-top: 0; }
+  .row .t { min-width: 0; }
+  .row .t b { display: block; font-weight: 500; }
+  .row .t span { display: block; font-size: 12px; color: var(--dim); margin-top: 2px; }
+  /* switch */
+  .sw { position: relative; width: 42px; height: 24px; flex: none; }
+  .sw input { opacity: 0; position: absolute; inset: 0; margin: 0; cursor: pointer; z-index: 1; }
+  .sw i { position: absolute; inset: 0; border-radius: 12px; background: #3a3a3c; transition: background .25s; }
+  .sw i::after { content: ''; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: transform .3s cubic-bezier(.3,1.3,.5,1); }
+  .sw input:checked + i { background: var(--green); }
+  .sw input:checked + i::after { transform: translateX(18px); }
+  /* segmented control */
+  .seg { display: flex; background: #2c2c2e; border-radius: 9px; padding: 2px; flex: none; }
+  .seg button { border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; padding: 5px 14px; border-radius: 7px; cursor: pointer; transition: background .2s; }
+  .seg button.on { background: #5a5a5e; }
+  input[type=text] { width: 100%; background: #0e0e10; border: 1px solid var(--line); border-radius: 9px; color: var(--text);
+    font: 13px "Cascadia Mono", Consolas, monospace; padding: 9px 11px; outline: none; user-select: text; transition: border-color .2s; }
+  input[type=text]:focus { border-color: var(--accent); }
+  .btn { border: 0; border-radius: 9px; padding: 8px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; flex: none; transition: filter .2s, transform .15s; }
+  .btn:hover { filter: brightness(1.15); } .btn:active { transform: scale(.97); }
+  .btn.green { background: var(--green); color: #000; }
+  .btn.gray { background: #3a3a3c; color: var(--text); }
+  html:not(.mac) .mac-only { display: none !important; }
+  html.mac .win-only { display: none !important; }
+  .perm-ok { color: var(--green); font-weight: 600; font-size: 13px; flex: none; }
+  .btn.red { background: rgba(255,69,58,.15); color: var(--red); }
+  .col { display: block; }
+  .col .line { display: flex; gap: 8px; margin-top: 8px; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); }
+  .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #636366; }
+  .status.ok { color: var(--green); } .status.ok::before { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .hint { font-size: 12px; color: var(--dim); margin-top: 8px; line-height: 1.5; }
+  .hint code { font-family: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, monospace; background: #2c2c2e; padding: 1px 5px; border-radius: 5px; color: var(--text); }
+  .msg { font-size: 12px; margin-top: 6px; min-height: 16px; }
+  .msg.err { color: var(--red); } .msg.ok { color: var(--green); }
+  .soon { font-size: 11px; color: var(--dim); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+  .bar { height: 4px; margin: 0 16px 10px; border-radius: 2px; background: #2c2c2e; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 2px; transition: width .5s, background .3s; }
+  .bar i.warn { background: #ff9f0a; }
+  .row.off { opacity: .4; pointer-events: none; }
+  .st-hero { font-size: 15px; line-height: 1.45; }
+  .st-hero b { color: var(--green); }
+  .st-bars { display: flex; align-items: flex-end; gap: 8px; height: 96px; margin: 14px 0 6px; }
+  .st-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .st-bar i { display: block; width: 100%; max-width: 34px; border-radius: 6px 6px 3px 3px; background: linear-gradient(#30d158, #1f8f3e);
+    min-height: 3px; transition: height .8s cubic-bezier(.22,.9,.24,1); }
+  .st-bar.today i { background: linear-gradient(#64d2ff, #0a84ff); }
+  .st-bar span { font-size: 10.5px; color: var(--dim); }
+  .st-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .st-card { background: #0e0e10; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-width: 0; }
+  .st-card h4 { font-size: 11px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
+  .st-row { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; padding: 2px 0; }
+  .st-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st-row em { font-style: normal; color: var(--dim); flex: none; }
+  #statsSec.off .st-bars, #statsSec.off .st-grid, #statsSec.off .st-hero { display: none; }
+  #statsSec:not(.off) #stOff { display: none; }
+  footer { text-align: center; font-size: 11.5px; color: rgba(255,255,255,.3); margin-top: 6px; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.28); }
+  .toolbar { position: sticky; top: 0; z-index: 10; background: rgba(11,11,12,.92); backdrop-filter: blur(12px);
+    padding: 8px 0 12px; margin: -6px 0 10px; display: flex; flex-direction: column; gap: 8px; }
+  .searchbar { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 7px 11px; transition: border-color .2s; }
+  .searchbar:focus-within { border-color: var(--accent); }
+  .searchbar svg { width: 15px; height: 15px; fill: var(--dim); flex: none; }
+  .searchbar input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); font: inherit; font-size: 13px; user-select: text; }
+  .searchbar input::placeholder { color: var(--dim); }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .tabs::-webkit-scrollbar { height: 0; }
+  .tab { border: 1px solid var(--line); background: var(--card); color: var(--dim); font: inherit; font-size: 12px; font-weight: 500;
+    padding: 5px 11px; border-radius: 9px; cursor: pointer; white-space: nowrap; transition: background .2s, color .2s, border-color .2s; }
+  .tab:hover { color: var(--text); background: #202024; }
+  .tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  select.langsel { background: #2c2c2e; color: var(--text); border: 1px solid var(--line); border-radius: 9px;
+    padding: 6px 12px; font: inherit; font-size: 13px; outline: none; cursor: pointer; }
+  select.langsel:focus { border-color: var(--accent); }
+  section.hidden, .row.hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-l">
+    <div class="logo"></div>
+    <h1>Atoll Island <small data-i="subtitle"></small></h1>
+  </div>
+  <div class="seg" id="easySeg" title="Basit / Gelişmiş Mod">
+    <button data-v="1" data-i="modeEasy"></button>
+    <button data-v="0" data-i="modeAdv"></button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label class="searchbar">
+    <svg viewBox="0 0 24 24"><path d="M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+    <input id="searchSettings" type="text" data-i-ph="searchPh" spellcheck="false" autocomplete="off">
+  </label>
+  <div class="tabs" id="catTabs">
+    <button class="tab on" data-cat="all" data-i="tabAll"></button>
+    <button class="tab" data-cat="general" data-i="general"></button>
+    <button class="tab" data-cat="custom" data-i="tabCustom"></button>
+    <button class="tab" data-cat="extras" data-i="extras"></button>
+    <button class="tab" data-cat="media" data-i="tabMedia"></button>
+    <button class="tab" data-cat="shelf" data-i="shelf"></button>
+    <button class="tab" data-cat="stats" data-i="statsTitle"></button>
+  </div>
+</div>
+
+<section data-cat="general">
+  <h2 data-i="general"></h2>
+  <div class="row">
+    <div class="t"><b data-i="autostart"></b><span data-i="autostartHint"></span></div>
+    <label class="sw"><input type="checkbox" id="autostart"><i></i></label>
+  </div>
+  <div class="row mac-only">
+    <div class="t"><b data-i="permAx"></b><span data-i="permAxHint"></span></div>
+    <span class="perm-ok" id="axOk" hidden>✓</span><button class="btn gray" id="axBtn" data-i="permOpen"></button>
+  </div>
+  <div class="row mac-only">
+    <div class="t"><b data-i="permFda"></b><span data-i="permFdaHint"></span></div>
+    <span class="perm-ok" id="fdaOk" hidden>✓</span><button class="btn gray" id="fdaBtn" data-i="permOpen"></button>
+  </div>
+  <div class="row mac-only" data-adv="1">
+    <div class="t"><b data-i="permAuto"></b><span data-i="permAutoHint"></span></div>
+    <button class="btn gray" id="autoBtn" data-i="permOpen"></button>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="language"></b></div>
+    <select class="langsel" id="langSelect">
+      <option value="tr">Türkçe</option>
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="ru">Русский</option>
+      <option value="ar">العربية</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+      <option value="zh">中文</option>
+    </select>
+  </div>
+  <div class="row" id="sizeRow">
+    <div class="t"><b data-i="islandSize"></b><span data-i="islandSizeHint"></span></div>
+    <div class="seg" id="islandSize"><button data-v="sm" data-i="sizeSm"></button><button data-v="md" data-i="sizeMd"></button><button data-v="lg" data-i="sizeLg"></button></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="scaleMode"></b><span data-i="scaleModeHint"></span></div>
+    <div class="seg" id="scaleMode"><button data-v="auto" data-i="scaleAuto"></button><button data-v="custom" data-i="scaleCustom"></button></div>
+  </div>
+  <div class="row" id="customScaleRow" style="display:none">
+    <div class="t"><b data-i="customScale"></b><span data-i="customScaleHint"></span></div>
+    <div class="scale-wrap"><input type="range" id="customScale" min="75" max="115" step="1"><span class="scale-val" id="customScaleVal">100%</span></div>
+  </div>
+  <div class="row" id="monRow">
+    <div class="t"><b data-i="monitor"></b><span data-i="monitorHint"></span></div>
+    <div class="seg" id="monitorSeg"></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="autoDim"></b><span data-i="autoDimHint"></span></div>
+    <label class="sw"><input type="checkbox" id="autoDim"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="showSysMonitor"></b><span data-i="showSysMonitorHint"></span></div>
+    <label class="sw"><input type="checkbox" id="showSysMonitor"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="autoHideFullscreen"></b><span data-i="autoHideFullscreenHint"></span></div>
+    <label class="sw"><input type="checkbox" id="autoHideFullscreen"><i></i></label>
+  </div>
+  <div class="row win-only" data-adv="1">
+    <div class="t"><b data-i="gpuAccel"></b><span data-i="gpuAccelHint"></span></div>
+    <label class="sw"><input type="checkbox" id="gpuAccel"><i></i></label>
+  </div>
+</section>
+
+<section data-cat="custom">
+  <h2 data-i="tabCustom"></h2>
+  <div class="row">
+    <div class="t"><b data-i="bgStyle"></b><span data-i="bgStyleHint"></span></div>
+    <div class="seg" id="bgStyle"><button data-v="pure" data-i="bgPure"></button><button data-v="glass" data-i="bgGlass"></button><button data-v="tinted" data-i="bgTinted"></button></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="accentColor"></b><span data-i="accentColorHint"></span></div>
+    <div class="swatches" id="accentSwatches">
+      <button class="sw-dot auto" data-v="auto" title="Auto"></button>
+      <button class="sw-dot" data-v="#0a84ff" style="background:#0a84ff"></button>
+      <button class="sw-dot" data-v="#30d158" style="background:#30d158"></button>
+      <button class="sw-dot" data-v="#bf5af2" style="background:#bf5af2"></button>
+      <button class="sw-dot" data-v="#ff9f0a" style="background:#ff9f0a"></button>
+      <button class="sw-dot" data-v="#ff375f" style="background:#ff375f"></button>
+      <button class="sw-dot" data-v="#64d2ff" style="background:#64d2ff"></button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="topOffset"></b><span data-i="topOffsetHint"></span></div>
+    <div class="scale-wrap"><input type="range" id="topOffset" min="0" max="48" step="1"><span class="scale-val" id="topOffsetVal">8 px</span></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="idleOpacity"></b><span data-i="idleOpacityHint"></span></div>
+    <div class="scale-wrap"><input type="range" id="idleOpacity" min="35" max="100" step="1"><span class="scale-val" id="idleOpacityVal">100%</span></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="animSpeed"></b><span data-i="animSpeedHint"></span></div>
+    <div class="seg" id="animSpeed"><button data-v="snappy" data-i="spdFast"></button><button data-v="normal" data-i="spdNorm"></button><button data-v="relaxed" data-i="spdSlow"></button></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="clockFormat"></b><span data-i="clockFormatHint"></span></div>
+    <div class="seg" id="clock24h"><button data-v="1">24h</button><button data-v="0">12h</button></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="resetCustom"></b><span data-i="resetCustomHint"></span></div>
+    <button class="btn gray" id="resetCustomBtn" data-i="reset"></button>
+  </div>
+</section>
+
+<section data-cat="extras">
+  <h2 data-i="extras"></h2>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="singleSource"></b><span data-i="singleSourceHint"></span></div>
+    <label class="sw"><input type="checkbox" id="singleSource"><i></i></label>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="callAlerts"></b><span data-i="callAlertsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="callAlerts"><i></i></label>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="weather"></b><span data-i="weatherHint"></span></div>
+    <label class="sw"><input type="checkbox" id="weather"><i></i></label>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="downloads"></b><span data-i="downloadsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="downloads"><i></i></label>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="headsetAlerts"></b><span data-i="headsetAlertsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="headsetAlerts"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="privacyDots"></b><span data-i="privacyDotsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="privacyDots"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="recordingDot"></b><span data-i="recordingDotHint"></span></div>
+    <label class="sw"><input type="checkbox" id="recordingDot"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="listeningStats"></b><span data-i="listeningStatsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="listeningStats"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="audioSwitch"></b><span data-i="audioSwitchHint"></span></div>
+    <label class="sw"><input type="checkbox" id="audioSwitch"><i></i></label>
+  </div>
+  <div class="row" data-adv="1">
+    <div class="t"><b data-i="globalShortcut"></b><span data-i="globalShortcutHint"></span></div>
+    <label class="sw"><input type="checkbox" id="globalShortcut"><i></i></label>
+  </div>
+</section>
+
+<section data-cat="media">
+  <h2 lang="en">Spotify</h2>
+  <div class="row col">
+    <div class="t" style="display:flex;justify-content:space-between;align-items:center">
+      <b>Client ID</b><span class="status" id="spStatus"></span>
+    </div>
+    <div class="line">
+      <input type="text" id="clientId" maxlength="32" spellcheck="false" autocomplete="off" placeholder="Client ID">
+      <button class="btn gray" id="saveId" data-i="save"></button>
+    </div>
+    <div class="msg" id="idMsg"></div>
+    <div class="hint" data-i-html="clientHint"></div>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="account"></b><span data-i="accountHint"></span></div>
+    <button class="btn green" id="spBtn"></button>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="spotifyAutoplay"></b><span data-i="spotifyAutoplayHint"></span></div>
+    <label class="sw"><input type="checkbox" id="spotifyAutoplay"><i></i></label>
+  </div>
+</section>
+
+<section data-cat="media">
+  <h2 data-i="lyrics"></h2>
+  <div class="row">
+    <div class="t"><b data-i="browserLyrics"></b><span data-i="browserLyricsHint"></span></div>
+    <label class="sw"><input type="checkbox" id="browserLyrics"><i></i></label>
+  </div>
+</section>
+
+<section data-cat="shelf">
+  <h2 data-i="shelf"></h2>
+  <div class="row">
+    <div class="t"><b data-i="storage"></b><span id="storageHint"></span></div>
+    <div class="seg" id="storage"><button data-v="disk" data-i="disk"></button><button data-v="ram">RAM</button></div>
+  </div>
+  <div class="row col" id="dirRow">
+    <div class="t"><b data-i="folder"></b></div>
+    <div class="line">
+      <input type="text" id="storageDir" readonly>
+      <button class="btn gray" id="pickDir" data-i="change"></button>
+      <button class="btn gray" id="resetDir" data-i="reset"></button>
+    </div>
+  </div>
+  <div class="row" id="ramExitRow">
+    <div class="t"><b data-i="saveRam"></b><span data-i="saveRamHint"></span></div>
+    <label class="sw"><input type="checkbox" id="saveRamOnExit"><i></i></label>
+  </div>
+  <div class="row">
+    <div class="t"><b data-i="limit"></b><span id="usage"></span></div>
+    <div class="line" style="margin:0;align-items:center;gap:6px">
+      <input type="text" id="limitGb" style="width:70px;text-align:right" inputmode="decimal"><span>GB</span>
+    </div>
+  </div>
+  <div class="bar"><i id="usageBar"></i></div>
+  <div class="row">
+    <div class="t"><b data-i="clipboardHistory"></b><span data-i="clipboardHistoryHint"></span></div>
+    <label class="sw"><input type="checkbox" id="clipboardHistory"><i></i></label>
+  </div>
+</section>
+
+<section id="statsSec" data-cat="stats">
+  <h2 data-i="statsTitle"></h2>
+  <div class="row col">
+    <div class="st-hero" id="stHero"></div>
+    <div class="st-bars" id="stBars"></div>
+    <div class="st-grid">
+      <div class="st-card"><h4 data-i="topArtists"></h4><div id="stArtists"></div></div>
+      <div class="st-card"><h4 data-i="topTracks"></h4><div id="stTracks"></div></div>
+    </div>
+    <div class="hint" id="stOff" data-i="statsOff"></div>
+  </div>
+</section>
+
+<footer id="dataDir"></footer>
+
+<script>
+const T = {
+  tr: {
+    subtitle: 'Ayarlar', tabAll: 'Tümü', tabMedia: 'Spotify & Sözler', searchPh: 'Ayarlarda ara…',
+    modeEasy: 'Basit', modeAdv: 'Gelişmiş',
+    scaleMode: 'Ölçekleme', scaleModeHint: 'Windows ölçeğine uyumlu veya ayrık yüzde seçimi', scaleAuto: 'Windows', scaleCustom: 'Ayrık',
+    customScale: 'Özel ölçek', customScaleHint: 'Adanın ekran üzerindeki ölçeği (%75 – %115)',
+    autoDim: 'Boşta hafif saydamlık', autoDimHint: 'Ada boştayken hafifçe soluklaşır, fare yaklaşınca netleşir',
+    gpuAccel: 'GPU hızlandırma', gpuAccelHint: 'Animasyon ve çizimleri ekran kartında hızlandırır (yeniden başlatınca geçerli olur)',
+    tabCustom: 'Kişiselleştirme', bgStyle: 'Arka plan stili', bgStyleHint: 'Adanın zemin görünümü', bgPure: 'Siyah', bgGlass: 'Cam', bgTinted: 'Koyu Gri',
+    accentColor: 'Vurgu rengi', accentColorHint: 'Otomatik kapak rengi veya sabit tema rengi',
+    topOffset: 'Üstten boşluk', topOffsetHint: 'Adanın ekranın üst kenarına uzaklığı (0–48 px)',
+    idleOpacity: 'Boşta saydamlık', idleOpacityHint: 'Ada boştayken opaklık seviyesi (%35–%100)',
+    animSpeed: 'Animasyon hızı', animSpeedHint: 'Geçiş ve yay hızını ayarla', spdFast: 'Hızlı', spdNorm: 'Normal', spdSlow: 'Yumuşak',
+    clockFormat: 'Saat biçimi', clockFormatHint: '24 saat veya 12 saat (AM/PM)',
+    resetCustom: 'Görünümü sıfırla', resetCustomHint: 'Tüm kişiselleştirme ayarlarını güvenli varsayılanlara döndürür',
+    general: 'Genel', autostart: 'Windows ile başlat', autostartHint: 'Bilgisayar açılınca ada sistem tepsisinde başlar',
+    language: 'Dil', save: 'Kaydet', account: 'Hesap', accountHint: 'Beğenme, çalma sırası ve arama için',
+    connect: 'Spotify ile bağlan', disconnect: 'Bağlantıyı kes', connected: 'Bağlı', notConnected: 'Bağlı değil', connecting: 'Tarayıcıda onay bekleniyor…',
+    clientHint: '<a>developer.spotify.com</a> → Dashboard → uygulamanı seç → <b>Client ID</b>. Uygulamanın <i>Redirect URI</i> alanında <code>http://127.0.0.1:8989/login</code> kayıtlı olmalı. Spotify, kendi oluşturduğun uygulamalar için hesap sahibinde Premium istiyor.',
+    savedId: 'Kaydedildi. Yeni Client ID için yeniden bağlanman gerekiyor.', badId: 'Client ID 32 karakterlik bir kod olmalı.',
+    lyrics: 'Şarkı sözleri', browserLyrics: 'Tarayıcıda sözleri göster', browserLyricsHint: 'Kapalıyken tarayıcıda sadece YouTube Music için gösterilir',
+    shelf: 'Raf ve pano', clipboardHistory: 'Pano geçmişi', clipboardHistoryHint: 'Kopyaladığın dosya, resim ve metinler rafa düşer (şifre yöneticileri hariç)',
+    storage: 'Depolama', disk: 'Disk', storageDisk: 'Dosyalar seçtiğin klasöre kopyalanır, kapanınca da kalır',
+    storageRam: (lim) => 'Dosyalar RAM\'de tutulur (en fazla ' + lim + ' GB, sistem RAM\'inin yarısı)',
+    folder: 'Klasör', change: 'Değiştir…', reset: 'Varsayılan', saveRam: 'Kapanışta RAM\'dekileri kaydet', saveRamHint: 'Kapalıysa RAM\'deki dosyalar kapanınca silinir',
+    limit: 'Raf sınırı', usage: (u, l) => 'Kullanılan: ' + u + ' / ' + l + ' GB', badLimit: 'Sınır 0,5 ile 1024 GB arasında olmalı',
+    showSysMonitor: 'Canlı sistem ve oyun göstergesi', showSysMonitorHint: 'Genişletilmiş görünümde CPU, GPU sıcaklığı (NVIDIA), RAM ve indirme hızı',
+    extras: 'Ek özellikler', callAlerts: 'Gelen arama kartı', callAlertsHint: 'WhatsApp, Telegram, Teams… aramalarında ada telefon gibi çalar; arama bitince kapanır',
+    weather: 'Hava durumu', weatherHint: 'Saatin yanında sıcaklık; 1 saat içinde yağmur başlayacaksa uyarır (konum IP adresinden yaklaşık bulunur)',
+    downloads: 'İndirme ilerlemesi', downloadsHint: 'Steam indirmesinde yüzde halkası; tarayıcı indirmelerinde dönen halka ve bitince bildirim', singleSource: 'Tek ses kaynağı', singleSourceHint: 'Yeni bir şey çalmaya başlayınca ada ona geçer, öncekini duraklatır',
+    spotifyAutoplay: 'Aramadan sonra benzer şarkılar', spotifyAutoplayHint: 'Spotify aramadan bir şarkı çalınca arkasından benzer şarkıları sıraya ekler',
+    headsetAlerts: 'Kulaklık bağlandı bildirimi', headsetAlertsHint: 'Bluetooth kulaklık bağlanınca ada açılır, adı ve pil yüzdesi görünür',
+    privacyDots: 'Mikrofon / kamera noktası', privacyDotsHint: 'Bir uygulama mikrofonu (turuncu) ya da kamerayı (yeşil) kullanırken adada nokta yanar',
+    recordingDot: 'Ekran kaydı göstergesi (OBS / Game Bar)', recordingDotHint: 'OBS veya Xbox Game Bar kayıt yaparken adada kırmızı nokta ve kayıt süresi görünür',
+    statsTitle: 'Dinleme özeti', topArtists: 'En çok dinlenen sanatçılar (7 gün)', topTracks: 'En çok dinlenen şarkılar (7 gün)',
+    statsOff: 'Görmek için Ek özellikler → "Çalma geçmişi ve haftalık özet"i aç.', statsEmpty: 'Henüz dinleme verisi yok.',
+    statsToday: (d, a) => 'Bugün <b>' + d + '</b> dinledin' + (a ? ', en çok <b>' + a + '</b>.' : '.'),
+    statsWeek: (d) => 'Bu hafta toplam <b>' + d + '</b>.',
+    days: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
+    listeningStats: 'Çalma geçmişi ve haftalık özet', listeningStatsHint: 'Bugün kaç saat ve en çok kimi dinlediğini yerel olarak tutar, özet kartı çıkarır',
+    islandSize: 'Ada boyutu', islandSizeHint: 'Adanın ekrandaki ölçeği', sizeSm: 'Küçük', sizeMd: 'Orta', sizeLg: 'Büyük',
+    monitor: 'Ekran konumu', monitorHint: 'Birden fazla ekran varsa adanın duracağı ekran',
+    audioSwitch: 'Hızlı ses çıkışı değiştirici', audioSwitchHint: 'Ses göstergesindeki hoparlör simgesine sağ tık: hoparlör ↔ kulaklık',
+    globalShortcut: 'Klavye kısayolu (Ctrl+Shift+Space)', globalShortcutHint: 'Fareye dokunmadan adayı açar/kapatır',
+    autoHideFullscreen: 'Tam ekran oyun ve videolarda gizle', autoHideFullscreenHint: 'Oyun/video tam ekranken ada yukarı çekilir; ses değişince veya fareyi en üste değdirince iner',
+    dataDir: 'Veri klasörü: ',
+  },
+  en: {
+    subtitle: 'Settings', tabAll: 'All', tabMedia: 'Spotify & Lyrics', searchPh: 'Search settings…',
+    modeEasy: 'Simple', modeAdv: 'Advanced',
+    scaleMode: 'Scaling', scaleModeHint: 'Match Windows display scaling or set a custom scale', scaleAuto: 'Windows', scaleCustom: 'Custom',
+    customScale: 'Custom scale', customScaleHint: 'Scale of the island on screen (75% – 115%)',
+    autoDim: 'Auto-dim when idle', autoDimHint: 'Gently fades the island while idle and brightens on hover',
+    gpuAccel: 'GPU acceleration', gpuAccelHint: 'Hardware-accelerates animations & compositing on GPU (takes effect after restart)',
+    tabCustom: 'Customization', bgStyle: 'Background style', bgStyleHint: 'Surface look of the island', bgPure: 'Pure Black', bgGlass: 'Glass', bgTinted: 'Charcoal',
+    accentColor: 'Accent color', accentColorHint: 'Automatic album art color or fixed theme tint',
+    topOffset: 'Top offset', topOffsetHint: 'Distance from top of the screen (0–48 px)',
+    idleOpacity: 'Idle opacity', idleOpacityHint: 'Opacity while the island is idle (35%–100%)',
+    animSpeed: 'Animation speed', animSpeedHint: 'Adjust spring & transition speed', spdFast: 'Snappy', spdNorm: 'Normal', spdSlow: 'Relaxed',
+    clockFormat: 'Clock format', clockFormatHint: '24-hour or 12-hour (AM/PM)',
+    resetCustom: 'Reset appearance', resetCustomHint: 'Restores all customization settings to safe defaults',
+    general: 'General', autostart: 'Start with Windows', autostartHint: 'The island starts in the system tray when you sign in',
+    language: 'Language', save: 'Save', account: 'Account', accountHint: 'For likes, play queue and search',
+    connect: 'Connect with Spotify', disconnect: 'Disconnect', connected: 'Connected', notConnected: 'Not connected', connecting: 'Waiting for approval in your browser…',
+    clientHint: '<a>developer.spotify.com</a> → Dashboard → select your app → <b>Client ID</b>. Your app must list <code>http://127.0.0.1:8989/login</code> as a <i>Redirect URI</i>. Spotify requires the app owner to have Premium for self-created apps.',
+    savedId: 'Saved. Reconnect to use the new Client ID.', badId: 'Client ID must be a 32-character code.',
+    lyrics: 'Lyrics', browserLyrics: 'Show lyrics in browsers', browserLyricsHint: 'When off, browsers only show lyrics for YouTube Music',
+    shelf: 'Shelf & clipboard', clipboardHistory: 'Clipboard history', clipboardHistoryHint: 'Files, images and text you copy land on the shelf (password managers excluded)',
+    storage: 'Storage', disk: 'Disk', storageDisk: 'Files are copied to the folder you choose and survive restarts',
+    storageRam: (lim) => 'Files are kept in RAM (up to ' + lim + ' GB, half of system RAM)',
+    folder: 'Folder', change: 'Change…', reset: 'Default', saveRam: 'Save RAM items on exit', saveRamHint: 'When off, RAM items are deleted when the app closes',
+    limit: 'Shelf limit', usage: (u, l) => 'Used: ' + u + ' / ' + l + ' GB', badLimit: 'Limit must be between 0.5 and 1024 GB',
+    showSysMonitor: 'Live system & game monitor', showSysMonitorHint: 'CPU, GPU temperature (NVIDIA), RAM and download speed in the expanded view',
+    extras: 'Extras', callAlerts: 'Incoming call card', callAlertsHint: 'The island rings for WhatsApp, Telegram, Teams… calls and closes when the call ends',
+    weather: 'Weather', weatherHint: 'Temperature next to the clock; warns if rain starts within an hour (location is estimated from your IP address)',
+    downloads: 'Download progress', downloadsHint: 'Percentage ring for Steam downloads; spinning ring for browser downloads and a notification when done', singleSource: 'One audio source at a time', singleSourceHint: 'When something new starts playing, the island switches to it and pauses the previous one',
+    spotifyAutoplay: 'Similar songs after search', spotifyAutoplayHint: 'When playing a song from Spotify search, queues similar tracks afterwards',
+    headsetAlerts: 'Headset connected alert', headsetAlertsHint: 'When a Bluetooth headset connects, the island shows its name and battery',
+    privacyDots: 'Microphone / camera dot', privacyDotsHint: 'A dot lights up while an app uses the microphone (orange) or camera (green)',
+    recordingDot: 'Recording indicator (OBS / Game Bar)', recordingDotHint: 'Shows a red dot and elapsed time while OBS or Xbox Game Bar is recording',
+    statsTitle: 'Listening summary', topArtists: 'Top artists (7 days)', topTracks: 'Top songs (7 days)',
+    statsOff: 'Turn on Extras → "Listening history & weekly summary" to see it.', statsEmpty: 'No listening data yet.',
+    statsToday: (d, a) => 'Today you listened for <b>' + d + '</b>' + (a ? ', mostly <b>' + a + '</b>.' : '.'),
+    statsWeek: (d) => 'This week: <b>' + d + '</b> in total.',
+    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    listeningStats: 'Listening history & weekly summary', listeningStatsHint: 'Tracks daily/weekly listening time & top artists locally with a summary card',
+    islandSize: 'Island size', islandSizeHint: 'Scale of the island on screen', sizeSm: 'Small', sizeMd: 'Medium', sizeLg: 'Large',
+    monitor: 'Display location', monitorHint: 'Which monitor the island stays on',
+    audioSwitch: 'Quick audio output switcher', audioSwitchHint: 'Right-click the speaker icon in the volume bar: speakers ↔ headset',
+    globalShortcut: 'Keyboard shortcut (Ctrl+Shift+Space)', globalShortcutHint: 'Opens/closes the island without the mouse',
+    autoHideFullscreen: 'Auto-hide in fullscreen games & videos', autoHideFullscreenHint: 'Slides up during fullscreen apps; peeks when volume changes or cursor touches top edge',
+    dataDir: 'Data folder: ',
+  },
+  de: {
+    subtitle: 'Einstellungen', tabAll: 'Alle', tabMedia: 'Spotify & Texte', searchPh: 'Einstellungen durchsuchen…',
+    general: 'Allgemein', autostart: 'Mit Windows starten', autostartHint: 'Die Insel startet beim Anmelden im Infobereich',
+    language: 'Sprache', save: 'Speichern', account: 'Konto', accountHint: 'Für Likes, Warteschlange und Suche',
+    connect: 'Mit Spotify verbinden', disconnect: 'Trennen', connected: 'Verbunden', notConnected: 'Nicht verbunden', connecting: 'Warte auf Bestätigung im Browser…',
+    lyrics: 'Liedtexte', browserLyrics: 'Texte im Browser zeigen', shelf: 'Ablage & Zwischenablage', clipboardHistory: 'Zwischenablage-Verlauf',
+    storage: 'Speicher', disk: 'Festplatte', folder: 'Ordner', change: 'Ändern…', reset: 'Standard', saveRam: 'RAM-Elemente beim Beenden speichern', limit: 'Ablage-Limit',
+    showSysMonitor: 'Live-Systemmonitor', extras: 'Extras', callAlerts: 'Anrufkarte', weather: 'Wetter', downloads: 'Download-Fortschritt',
+    singleSource: 'Nur eine Audioquelle', spotifyAutoplay: 'Ähnliche Titel nach Suche', headsetAlerts: 'Kopfhörer-Benachrichtigung',
+    privacyDots: 'Mikrofon-/Kamera-Punkt', recordingDot: 'Aufnahme-Anzeige', statsTitle: 'Hörübersicht', topArtists: 'Top-Künstler (7 Tage)', topTracks: 'Top-Titel (7 Tage)',
+    listeningStats: 'Hörverlauf & Wochenübersicht', islandSize: 'Inselgröße', sizeSm: 'Klein', sizeMd: 'Mittel', sizeLg: 'Groß',
+    monitor: 'Bildschirm', audioSwitch: 'Schneller Audiowechsel', globalShortcut: 'Tastenkürzel (Ctrl+Shift+Space)', autoHideFullscreen: 'Im Vollbild ausblenden',
+    days: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], dataDir: 'Datenordner: ',
+  },
+  fr: {
+    subtitle: 'Paramètres', tabAll: 'Tout', tabMedia: 'Spotify & Paroles', searchPh: 'Rechercher…',
+    general: 'Général', autostart: 'Lancer avec Windows', autostartHint: 'L\'îlot démarre dans la zone de notification',
+    language: 'Langue', save: 'Enregistrer', account: 'Compte', accountHint: 'Pour les j\'aime, la file et la recherche',
+    connect: 'Connecter Spotify', disconnect: 'Déconnecter', connected: 'Connecté', notConnected: 'Non connecté', connecting: 'En attente d\'approbation…',
+    lyrics: 'Paroles', browserLyrics: 'Paroles dans le navigateur', shelf: 'Étagère & presse-papiers', clipboardHistory: 'Historique du presse-papiers',
+    storage: 'Stockage', disk: 'Disque', folder: 'Dossier', change: 'Changer…', reset: 'Par défaut', saveRam: 'Sauvegarder la RAM à la fermeture', limit: 'Limite',
+    showSysMonitor: 'Moniteur système', extras: 'Extras', callAlerts: 'Carte d\'appel', weather: 'Météo', downloads: 'Progression des téléchargements',
+    singleSource: 'Une source audio à la fois', spotifyAutoplay: 'Titres similaires après recherche', headsetAlerts: 'Alerte casque connecté',
+    privacyDots: 'Point micro / caméra', recordingDot: 'Indicateur d\'enregistrement', statsTitle: 'Résumé d\'écoute', topArtists: 'Top artistes (7 j)', topTracks: 'Top titres (7 j)',
+    listeningStats: 'Historique & résumé', islandSize: 'Taille de l\'îlot', sizeSm: 'Petit', sizeMd: 'Moyen', sizeLg: 'Grand',
+    monitor: 'Écran', audioSwitch: 'Changement de sortie audio', globalShortcut: 'Raccourci (Ctrl+Shift+Space)', autoHideFullscreen: 'Masquer en plein écran',
+    days: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'], dataDir: 'Dossier : ',
+  },
+  es: {
+    subtitle: 'Ajustes', tabAll: 'Todo', tabMedia: 'Spotify y Letras', searchPh: 'Buscar ajustes…',
+    general: 'General', autostart: 'Iniciar con Windows', autostartHint: 'La isla se inicia en la bandeja del sistema',
+    language: 'Idioma', save: 'Guardar', account: 'Cuenta', accountHint: 'Para me gusta, cola y búsqueda',
+    connect: 'Conectar con Spotify', disconnect: 'Desconectar', connected: 'Conectado', notConnected: 'Desconectado', connecting: 'Esperando aprobación…',
+    lyrics: 'Letras', browserLyrics: 'Mostrar letras en navegadores', shelf: 'Estante y portapapeles', clipboardHistory: 'Historial del portapapeles',
+    storage: 'Almacenamiento', disk: 'Disco', folder: 'Carpeta', change: 'Cambiar…', reset: 'Por defecto', saveRam: 'Guardar RAM al salir', limit: 'Límite',
+    showSysMonitor: 'Monitor de sistema', extras: 'Extras', callAlerts: 'Tarjeta de llamada', weather: 'Clima', downloads: 'Progreso de descargas',
+    singleSource: 'Una fuente de audio', spotifyAutoplay: 'Canciones similares al buscar', headsetAlerts: 'Alerta de auriculares',
+    privacyDots: 'Punto micrófono / cámara', recordingDot: 'Indicador de grabación', statsTitle: 'Resumen de escucha', topArtists: 'Top artistas (7 d)', topTracks: 'Top canciones (7 d)',
+    listeningStats: 'Historial y resumen semanal', islandSize: 'Tamaño de la isla', sizeSm: 'Pequeño', sizeMd: 'Mediano', sizeLg: 'Grande',
+    monitor: 'Pantalla', audioSwitch: 'Cambio rápido de audio', globalShortcut: 'Atajo (Ctrl+Shift+Space)', autoHideFullscreen: 'Ocultar en pantalla completa',
+    days: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'], dataDir: 'Carpeta: ',
+  },
+  it: {
+    subtitle: 'Impostazioni', tabAll: 'Tutto', tabMedia: 'Spotify & Testi', searchPh: 'Cerca…',
+    general: 'Generale', autostart: 'Avvia con Windows', language: 'Lingua', save: 'Salva', account: 'Account',
+    connect: 'Connetti Spotify', disconnect: 'Disconnetti', connected: 'Connesso', notConnected: 'Non connesso',
+    lyrics: 'Testi', browserLyrics: 'Mostra testi nel browser', shelf: 'Scaffale e appunti', clipboardHistory: 'Cronologia appunti',
+    storage: 'Archiviazione', disk: 'Disco', folder: 'Cartella', change: 'Cambia…', reset: 'Predefinito', saveRam: 'Salva RAM all\'uscita', limit: 'Limite',
+    showSysMonitor: 'Monitor di sistema', extras: 'Extra', callAlerts: 'Avviso chiamata', weather: 'Meteo', downloads: 'Avanzamento download',
+    singleSource: 'Sorgente audio singola', spotifyAutoplay: 'Brani simili dopo ricerca', headsetAlerts: 'Avviso cuffie connesse',
+    privacyDots: 'Indicatore microfono / fotocamera', recordingDot: 'Indicatore registrazione', statsTitle: 'Riepilogo ascolto',
+    listeningStats: 'Cronologia ascolto', islandSize: 'Dimensione isola', sizeSm: 'Piccola', sizeMd: 'Media', sizeLg: 'Grande',
+    monitor: 'Schermo', audioSwitch: 'Cambio audio rapido', globalShortcut: 'Scorciatoia (Ctrl+Shift+Space)', autoHideFullscreen: 'Nascondi a schermo intero',
+    days: ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'], dataDir: 'Cartella: ',
+  },
+  pt: {
+    subtitle: 'Configurações', tabAll: 'Tudo', tabMedia: 'Spotify e Letras', searchPh: 'Pesquisar…',
+    general: 'Geral', autostart: 'Iniciar com o Windows', language: 'Idioma', save: 'Salvar', account: 'Conta',
+    connect: 'Conectar Spotify', disconnect: 'Desconectar', connected: 'Conectado', notConnected: 'Desconectado',
+    lyrics: 'Letras', browserLyrics: 'Mostrar letras no navegador', shelf: 'Prateleira e área de transferência', clipboardHistory: 'Histórico de transferência',
+    storage: 'Armazenamento', disk: 'Disco', folder: 'Pasta', change: 'Alterar…', reset: 'Padrão', saveRam: 'Salvar RAM ao sair', limit: 'Limite',
+    showSysMonitor: 'Monitor do sistema', extras: 'Extras', callAlerts: 'Cartão de chamada', weather: 'Clima', downloads: 'Progresso de downloads',
+    singleSource: 'Fonte de áudio única', spotifyAutoplay: 'Músicas similares após busca', headsetAlerts: 'Alerta de fone conectado',
+    privacyDots: 'Ponto de microfone / câmera', recordingDot: 'Indicador de gravação', statsTitle: 'Resumo de audição',
+    listeningStats: 'Histórico de audição', islandSize: 'Tamanho da ilha', sizeSm: 'Pequeno', sizeMd: 'Médio', sizeLg: 'Grande',
+    monitor: 'Monitor', audioSwitch: 'Troca rápida de áudio', globalShortcut: 'Atalho (Ctrl+Shift+Space)', autoHideFullscreen: 'Ocultar em tela cheia',
+    days: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], dataDir: 'Pasta: ',
+  },
+  ru: {
+    subtitle: 'Настройки', tabAll: 'Все', tabMedia: 'Spotify и тексты', searchPh: 'Поиск настроек…',
+    general: 'Общие', autostart: 'Запускать с Windows', language: 'Язык', save: 'Сохранить', account: 'Аккаунт',
+    connect: 'Подключить Spotify', disconnect: 'Отключить', connected: 'Подключено', notConnected: 'Не подключено',
+    lyrics: 'Тексты песен', browserLyrics: 'Показывать тексты в браузере', shelf: 'Полка и буфер', clipboardHistory: 'История буфера обмена',
+    storage: 'Хранилище', disk: 'Диск', folder: 'Папка', change: 'Изменить…', reset: 'Сброс', saveRam: 'Сохранять RAM при выходе', limit: 'Лимит',
+    showSysMonitor: 'Монитор системы', extras: 'Дополнительно', callAlerts: 'Входящий звонок', weather: 'Погода', downloads: 'Прогресс загрузок',
+    singleSource: 'Один источник звука', spotifyAutoplay: 'Похожие треки после поиска', headsetAlerts: 'Уведомление о наушниках',
+    privacyDots: 'Индикатор микрофона / камеры', recordingDot: 'Индикатор записи', statsTitle: 'Статистика',
+    listeningStats: 'История прослушивания', islandSize: 'Размер островка', sizeSm: 'Малый', sizeMd: 'Средний', sizeLg: 'Большой',
+    monitor: 'Экран', audioSwitch: 'Быстрое переключение звука', globalShortcut: 'Клавиши (Ctrl+Shift+Space)', autoHideFullscreen: 'Скрывать в полноэкранном режиме',
+    days: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'], dataDir: 'Папка: ',
+  },
+  ar: {
+    subtitle: 'الإعدادات', tabAll: 'الكل', tabMedia: 'Spotify والكلمات', searchPh: 'ابحث في الإعدادات…',
+    general: 'عام', autostart: 'التشغيل مع Windows', language: 'اللغة', save: 'حفظ', account: 'الحساب',
+    connect: 'ربط Spotify', disconnect: 'قطع الاتصال', connected: 'متصل', notConnected: 'غير متصل',
+    lyrics: 'كلمات الأغاني', browserLyrics: 'إظهار الكلمات في المتصفح', shelf: 'الرف والحافظة', clipboardHistory: 'سجل الحافظة',
+    storage: 'التخزين', disk: 'القرص', folder: 'المجلد', change: 'تغيير…', reset: 'افتراضي', saveRam: 'حفظ عناصر RAM عند الخروج', limit: 'الحد',
+    showSysMonitor: 'مراقب النظام', extras: 'إضافات', callAlerts: 'بطاقة المكالمات', weather: 'الطقس', downloads: 'تقدم التنزيلات',
+    singleSource: 'مصدر صوت واحد', spotifyAutoplay: 'أغانٍ مشابهة بعد البحث', headsetAlerts: 'تنبيه توصيل السماعات',
+    privacyDots: 'نقطة الميكروفون / الكاميرا', recordingDot: 'مؤشر التسجيل', statsTitle: 'ملخص الاستماع',
+    listeningStats: 'سجل الاستماع', islandSize: 'حجم الجزيرة', sizeSm: 'صغير', sizeMd: 'متوسط', sizeLg: 'كبير',
+    monitor: 'الشاشة', audioSwitch: 'تبديل الصوت السريع', globalShortcut: 'اختصار (Ctrl+Shift+Space)', autoHideFullscreen: 'إخفاء في وضع ملء الشاشة',
+    days: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'], dataDir: 'مجلد البيانات: ',
+  },
+  ja: {
+    subtitle: '設定', tabAll: 'すべて', tabMedia: 'Spotify・歌詞', searchPh: '設定を検索…',
+    general: '一般', autostart: 'Windows 起動時に開始', language: '言語', save: '保存', account: 'アカウント',
+    connect: 'Spotify に接続', disconnect: '切断', connected: '接続済み', notConnected: '未接続',
+    lyrics: '歌詞', browserLyrics: 'ブラウザで歌詞を表示', shelf: 'シェルフとクリップボード', clipboardHistory: 'クリップボード履歴',
+    storage: '保存先', disk: 'ディスク', folder: 'フォルダ', change: '変更…', reset: '既定', saveRam: '終了時に RAM を保存', limit: '上限',
+    showSysMonitor: 'システムモニター', extras: '拡張機能', callAlerts: '着信カード', weather: '天気', downloads: 'ダウンロード進捗',
+    singleSource: '単一オーディオソース', spotifyAutoplay: '検索後に類似曲を再生', headsetAlerts: 'ヘッドセット接続通知',
+    privacyDots: 'マイク/カメラ表示', recordingDot: '録画インジケーター', statsTitle: '再生履歴サマリー',
+    listeningStats: '再生履歴と週間サマリー', islandSize: 'サイズ', sizeSm: '小', sizeMd: '中', sizeLg: '大',
+    monitor: 'モニター', audioSwitch: '出力切替', globalShortcut: 'ショートカット (Ctrl+Shift+Space)', autoHideFullscreen: '全画面時に隠す',
+    days: ['日', '月', '火', '水', '木', '金', '土'], dataDir: 'データフォルダ: ',
+  },
+  ko: {
+    subtitle: '설정', tabAll: '전체', tabMedia: 'Spotify 및 가사', searchPh: '설정 검색…',
+    general: '일반', autostart: 'Windows 시작 시 실행', language: '언어', save: '저장', account: '계정',
+    connect: 'Spotify 연결', disconnect: '연결 해제', connected: '연결됨', notConnected: '연결 안 됨',
+    lyrics: '가사', browserLyrics: '브라우저에서 가사 표시', shelf: '선반 및 클립보드', clipboardHistory: '클립보드 기록',
+    storage: '저장소', disk: '디스크', folder: '폴더', change: '변경…', reset: '기본값', saveRam: '종료 시 RAM 저장', limit: '용량 제한',
+    showSysMonitor: '시스템 모니터', extras: '추가 기능', callAlerts: '수신 전화 카드', weather: '날씨', downloads: '다운로드 진행률',
+    singleSource: '단일 오디오 소스', spotifyAutoplay: '검색 후 유사곡 재생', headsetAlerts: '헤드셋 연결 알림',
+    privacyDots: '마이크/카메라 표시', recordingDot: '녹화 표시기', statsTitle: '청취 요약',
+    listeningStats: '청취 기록 및 요약', islandSize: '크기', sizeSm: '작게', sizeMd: '보통', sizeLg: '크게',
+    monitor: '모니터', audioSwitch: '빠른 오디오 전환', globalShortcut: '단축키 (Ctrl+Shift+Space)', autoHideFullscreen: '전체 화면에서 숨기기',
+    days: ['일', '월', '화', '수', '목', '금', '토'], dataDir: '데이터 폴더: ',
+  },
+  zh: {
+    subtitle: '设置', tabAll: '全部', tabMedia: 'Spotify 与歌词', searchPh: '搜索设置…',
+    general: '常规', autostart: '开机自启动', language: '语言', save: '保存', account: '账号',
+    connect: '连接 Spotify', disconnect: '断开连接', connected: '已连接', notConnected: '未连接',
+    lyrics: '歌词', browserLyrics: '在浏览器中显示歌词', shelf: '暂存架与剪贴板', clipboardHistory: '剪贴板历史',
+    storage: '存储', disk: '磁盘', folder: '文件夹', change: '更改…', reset: '默认', saveRam: '退出时保存 RAM 项目', limit: '容量限制',
+    showSysMonitor: '系统监视器', extras: '扩展功能', callAlerts: '来电卡片', weather: '天气', downloads: '下载进度',
+    singleSource: '单一音频源', spotifyAutoplay: '搜索播放后自动播放相似歌曲', headsetAlerts: '耳机连接提示',
+    privacyDots: '麦克风/摄像头指示点', recordingDot: '录屏指示器', statsTitle: '收听统计',
+    listeningStats: '收听历史与每周汇总', islandSize: '灵动岛大小', sizeSm: '小', sizeMd: '中', sizeLg: '大',
+    monitor: '显示器', audioSwitch: '快速切换音频输出', globalShortcut: '快捷键 (Ctrl+Shift+Space)', autoHideFullscreen: '全屏时自动隐藏',
+    days: ['日', '一', '二', '三', '四', '五', '六'], dataDir: '数据目录: ',
+  },
+};
+// ---------- macOS wording ----------
+const IS_MAC = /Mac/i.test(navigator.platform || navigator.userAgent || '');
+document.documentElement.classList.toggle('mac', IS_MAC);
+const MAC = {
+  tr: {
+    autostart: 'Girişte aç', autostartHint: 'Mac açılınca ada menü çubuğunda başlar (Sistem Ayarları › Genel › Giriş Öğeleri)',
+    scaleModeHint: 'macOS ekran ölçeğine uyumlu veya ayrık yüzde seçimi', scaleAuto: 'macOS',
+    showSysMonitorHint: 'Genişletilmiş görünümde CPU, GPU kullanımı (Apple / AMD / Intel), RAM ve ağ hızı',
+    recordingDot: 'Ekran kaydı göstergesi (OBS / QuickTime)', recordingDotHint: 'OBS veya QuickTime kayıt yaparken adada kırmızı nokta ve kayıt süresi görünür',
+    globalShortcut: 'Klavye kısayolu (⌃⇧Space)',
+    permAx: 'Erişilebilirlik izni', permAxHint: 'Ses tuşlarında macOS göstergesi yerine adayı gösterir (⌥⇧ ile ince ayar)',
+    permFda: 'Tam Disk Erişimi', permFdaHint: 'Bildirim Merkezi’ndeki yeni bildirimleri adada göstermek için gerekir',
+    permAuto: 'Otomasyon (Müzik, Spotify)', permAutoHint: 'Çalan şarkıyı okumak ve kontrol etmek için ilk kullanımda sorulur',
+    permOpen: 'Ayarları aç',
+  },
+  en: {
+    autostart: 'Open at Login', autostartHint: 'The island starts in the menu bar when you log in (System Settings › General › Login Items)',
+    scaleModeHint: 'Match macOS display scaling or set a custom scale', scaleAuto: 'macOS',
+    showSysMonitorHint: 'CPU, GPU load (Apple / AMD / Intel), RAM and network speed in the expanded view',
+    recordingDot: 'Recording indicator (OBS / QuickTime)', recordingDotHint: 'Shows a red dot and elapsed time while OBS or QuickTime is recording',
+    globalShortcut: 'Keyboard shortcut (⌃⇧Space)',
+    permAx: 'Accessibility access', permAxHint: 'Volume keys show the island instead of the macOS HUD (⌥⇧ for fine steps)',
+    permFda: 'Full Disk Access', permFdaHint: 'Needed to mirror new Notification Center banners on the island',
+    permAuto: 'Automation (Music, Spotify)', permAutoHint: 'Asked on first use to read and control the current track',
+    permOpen: 'Open Settings',
+  },
+};
+// other languages: reuse their strings with macOS terms
+const macify = (v) => typeof v !== 'string' ? v : v.replace(/Ctrl\+Shift\+Space/g, '⌃⇧Space').replace(/Xbox Game Bar|Game Bar/g, 'QuickTime')
+  .replace(/\s*\(NVIDIA\)/g, '').replace(/Windows/g, 'macOS');
+const { invoke } = window.__TAURI__.core;
+const { listen } = window.__TAURI__.event;
+const $ = (id) => document.getElementById(id);
+let st = {}, lang = 'tr', connecting = false, activeCat = 'all', filterQ = '';
+const t = (k, ...a) => {
+  let v = IS_MAC && MAC.en[k] !== undefined ? ((MAC[lang] && MAC[lang][k]) || (lang === 'tr' || lang === 'en' ? null : macify((T[lang] && T[lang][k]))) || MAC.en[k]) : undefined;
+  if (v === undefined || v === null) v = (T[lang] && T[lang][k]) || T.en[k] || T.tr[k] || k;
+  if (IS_MAC) v = macify(v);
+  return typeof v === 'function' ? v(...a) : v;
+};
+
+function applyFilter() {
+  const q = filterQ.trim().toLowerCase();
+  document.querySelectorAll('section[data-cat]').forEach((sec) => {
+    const catOk = activeCat === 'all' || sec.dataset.cat === activeCat;
+    if (!catOk) { sec.classList.add('hidden'); return; }
+    let anyRow = false;
+    sec.querySelectorAll('.row').forEach((row) => {
+      const match = !q || row.textContent.toLowerCase().includes(q);
+      row.classList.toggle('hidden', !match);
+      if (match) anyRow = true;
+    });
+    sec.classList.toggle('hidden', q ? !anyRow : false);
+  });
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i]').forEach((el) => el.textContent = t(el.dataset.i));
+  document.querySelectorAll('[data-i-html]').forEach((el) => el.innerHTML = t(el.dataset.iHtml));
+  document.querySelectorAll('[data-i-ph]').forEach((el) => el.placeholder = t(el.dataset.iPh));
+  document.title = 'Dynamic Island · ' + t('subtitle');
+}
+function render() {
+  lang = st.lang || 'tr';
+  applyLang();
+  $('autostart').checked = !!st.autostart;
+  if (IS_MAC && st.mac) {
+    $('axOk').hidden = !st.mac.accessibility; $('axBtn').hidden = !!st.mac.accessibility;
+    $('fdaOk').hidden = !st.mac.notifications; $('fdaBtn').hidden = !!st.mac.notifications;
+  }
+  $('browserLyrics').checked = !!st.browserLyrics;
+  for (const k of ['showSysMonitor', 'autoHideFullscreen', 'autoDim', 'gpuAccel', 'headsetAlerts', 'privacyDots', 'recordingDot', 'listeningStats', 'audioSwitch', 'globalShortcut', 'callAlerts', 'weather', 'downloads', 'spotifyAutoplay']) $(k).checked = k === 'gpuAccel' ? st[k] !== false : !!st[k];
+  $('singleSource').checked = st.singleSource === true;
+  $('langSelect').value = lang;
+  const easy = st.easyMode !== false;
+  document.body.classList.toggle('easy', easy);
+  document.querySelectorAll('#easySeg button').forEach((b) => b.classList.toggle('on', (b.dataset.v === '1') === easy));
+  const sm = st.scaleMode === 'custom' ? 'custom' : 'auto';
+  document.querySelectorAll('#scaleMode button').forEach((b) => b.classList.toggle('on', b.dataset.v === sm));
+  $('sizeRow').style.display = sm === 'auto' ? '' : 'none';
+  $('customScaleRow').style.display = sm === 'custom' ? '' : 'none';
+  const cs = Math.max(75, Math.min(115, Number(st.customScale) || 100));
+  if (document.activeElement !== $('customScale')) $('customScale').value = String(cs);
+  $('customScaleVal').textContent = cs + '%';
+  document.querySelectorAll('#bgStyle button').forEach((b) => b.classList.toggle('on', b.dataset.v === (st.bgStyle || 'pure')));
+  document.querySelectorAll('#accentSwatches button').forEach((b) => b.classList.toggle('on', b.dataset.v === (st.accentColor || 'auto')));
+  const to = Math.max(0, Math.min(48, Number(st.topOffset ?? 8)));
+  if (document.activeElement !== $('topOffset')) $('topOffset').value = String(to);
+  $('topOffsetVal').textContent = to + ' px';
+  const io = Math.max(35, Math.min(100, Number(st.idleOpacity ?? 100)));
+  if (document.activeElement !== $('idleOpacity')) $('idleOpacity').value = String(io);
+  $('idleOpacityVal').textContent = io + '%';
+  document.querySelectorAll('#animSpeed button').forEach((b) => b.classList.toggle('on', b.dataset.v === (st.animSpeed || 'normal')));
+  const c24 = st.clock24h !== false;
+  document.querySelectorAll('#clock24h button').forEach((b) => b.classList.toggle('on', (b.dataset.v === '1') === c24));
+  document.querySelectorAll('#islandSize button').forEach((b) => b.classList.toggle('on', b.dataset.v === (st.islandSize || 'md')));
+  const mons = Array.isArray(st.monitors) ? st.monitors : [];
+  const mseg = $('monitorSeg');
+  if (mseg) {
+    mseg.textContent = '';
+    mons.forEach((m, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = (lang !== 'tr' ? 'Screen ' : 'Ekran ') + (i + 1) + (m.primary ? ' ★' : '');
+      btn.title = `${m.name} (${m.width}×${m.height})`;
+      btn.classList.toggle('on', (st.monitorIndex || 0) === m.index);
+      btn.addEventListener('click', () => set('monitorIndex', m.index));
+      mseg.append(btn);
+    });
+    $('monRow').style.display = mons.length > 0 ? '' : 'none';
+  }
+  if (document.activeElement !== $('clientId')) $('clientId').value = st.clientId || '';
+  const ok = !!st.spotifyConnected;
+  if (ok) connecting = false;
+  $('spStatus').className = 'status' + (ok ? ' ok' : '');
+  $('spStatus').textContent = ok ? t('connected') : (connecting ? t('connecting') : t('notConnected'));
+  $('spBtn').textContent = ok ? t('disconnect') : t('connect');
+  $('spBtn').className = 'btn ' + (ok ? 'red' : 'green');
+  $('dataDir').textContent = st.dataDir ? t('dataDir') + st.dataDir : '';
+  const ram = st.storage === 'ram';
+  document.querySelectorAll('#storage button').forEach((b) => b.classList.toggle('on', b.dataset.v === (st.storage || 'disk')));
+  $('storageHint').textContent = ram ? t('storageRam', st.ramLimitGb) : t('storageDisk');
+  $('storageDir').value = st.storageDir || st.defaultStorageDir || '';
+  $('dirRow').classList.toggle('off', ram);
+  $('ramExitRow').classList.toggle('off', !ram);
+  $('saveRamOnExit').checked = st.saveRamOnExit !== false;
+  $('clipboardHistory').checked = !!st.clipboardHistory;
+  if (document.activeElement !== $('limitGb')) $('limitGb').value = String(st.limitGb || 16).replace('.', lang === 'tr' ? ',' : '.');
+  const usedGb = (st.usedBytes || 0) / 1073741824;
+  $('usage').textContent = t('usage', usedGb < 10 ? usedGb.toFixed(2).replace('.', lang === 'tr' ? ',' : '.') : usedGb.toFixed(1), st.limitGb || 16);
+  const pct = Math.min(100, usedGb / (st.limitGb || 16) * 100);
+  $('usageBar').style.width = pct + '%'; $('usageBar').classList.toggle('warn', pct > 85);
+}
+async function set(key, value) {
+  try { st = await invoke('set_setting', { key, value }); render(); return true; }
+  catch (e) { return String(e); }
+}
+
+$('autostart').addEventListener('change', (e) => set('autostart', e.target.checked));
+$('axBtn').addEventListener('click', () => set('openPrivacyPane', 'accessibility'));
+$('fdaBtn').addEventListener('click', () => set('openPrivacyPane', 'fullDisk'));
+$('autoBtn').addEventListener('click', () => set('openPrivacyPane', 'automation'));
+$('browserLyrics').addEventListener('change', (e) => set('browserLyrics', e.target.checked));
+$('showSysMonitor').addEventListener('change', (e) => set('showSysMonitor', e.target.checked));
+$('autoHideFullscreen').addEventListener('change', (e) => set('autoHideFullscreen', e.target.checked));
+for (const k of ['singleSource', 'autoDim', 'gpuAccel', 'headsetAlerts', 'privacyDots', 'recordingDot', 'listeningStats', 'audioSwitch', 'globalShortcut', 'callAlerts', 'weather', 'downloads', 'spotifyAutoplay']) $(k).addEventListener('change', (e) => set(k, e.target.checked));
+$('langSelect').addEventListener('change', (e) => set('lang', e.target.value));
+document.querySelectorAll('#easySeg button').forEach((b) => b.addEventListener('click', () => set('easyMode', b.dataset.v === '1')));
+document.querySelectorAll('#scaleMode button').forEach((b) => b.addEventListener('click', () => set('scaleMode', b.dataset.v)));
+$('customScale').addEventListener('input', (e) => { $('customScaleVal').textContent = e.target.value + '%'; });
+$('customScale').addEventListener('change', (e) => set('customScale', Number(e.target.value)));
+document.querySelectorAll('#bgStyle button').forEach((b) => b.addEventListener('click', () => set('bgStyle', b.dataset.v)));
+document.querySelectorAll('#accentSwatches button').forEach((b) => b.addEventListener('click', () => set('accentColor', b.dataset.v)));
+$('topOffset').addEventListener('input', (e) => { $('topOffsetVal').textContent = e.target.value + ' px'; });
+$('topOffset').addEventListener('change', (e) => set('topOffset', Number(e.target.value)));
+$('idleOpacity').addEventListener('input', (e) => { $('idleOpacityVal').textContent = e.target.value + '%'; });
+$('idleOpacity').addEventListener('change', (e) => set('idleOpacity', Number(e.target.value)));
+document.querySelectorAll('#animSpeed button').forEach((b) => b.addEventListener('click', () => set('animSpeed', b.dataset.v)));
+document.querySelectorAll('#clock24h button').forEach((b) => b.addEventListener('click', () => set('clock24h', b.dataset.v === '1')));
+$('resetCustomBtn').addEventListener('click', () => set('resetCustom', true));
+$('searchSettings').addEventListener('input', (e) => { filterQ = e.target.value; applyFilter(); });
+document.querySelectorAll('#catTabs .tab').forEach((b) => b.addEventListener('click', () => {
+  activeCat = b.dataset.cat;
+  document.querySelectorAll('#catTabs .tab').forEach((x) => x.classList.toggle('on', x === b));
+  applyFilter();
+}));
+document.querySelectorAll('#islandSize button').forEach((b) => b.addEventListener('click', () => set('islandSize', b.dataset.v)));
+$('saveRamOnExit').addEventListener('change', (e) => set('saveRamOnExit', e.target.checked));
+$('clipboardHistory').addEventListener('change', (e) => set('clipboardHistory', e.target.checked));
+document.querySelectorAll('#storage button').forEach((b) => b.addEventListener('click', () => set('storage', b.dataset.v)));
+$('pickDir').addEventListener('click', async () => { try { st = await invoke('pick_storage_dir'); render(); } catch {} });
+$('resetDir').addEventListener('click', () => set('storageDir', ''));
+$('limitGb').addEventListener('change', async (e) => {
+  const v = parseFloat(String(e.target.value).replace(',', '.'));
+  const r = await set('limitGb', v);
+  if (r !== true) { $('idMsg').className = 'msg err'; $('idMsg').textContent = t('badLimit'); render(); }
+});
+$('saveId').addEventListener('click', async () => {
+  const v = $('clientId').value.trim();
+  const r = await set('clientId', v);
+  $('idMsg').className = 'msg ' + (r === true ? 'ok' : 'err');
+  $('idMsg').textContent = r === true ? t('savedId') : t('badId');
+});
+$('spBtn').addEventListener('click', async () => {
+  if (st.spotifyConnected) { await invoke('sp_disconnect'); return; }
+  // without a Client ID Spotify only shows "client_id: Not present": guide the user to the field instead
+  if (!String(st.clientId || '').trim()) {
+    activeCat = 'media'; document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('on', b.dataset.cat === 'media')); applyFilter();
+    $('idMsg').className = 'msg err';
+    $('idMsg').textContent = lang === 'tr'
+      ? 'Önce Client ID girin: developer.spotify.com/dashboard üzerinde bir uygulama oluşturun, Redirect URI olarak http://127.0.0.1:8989/login ekleyin ve Client ID’yi buraya yapıştırıp Kaydet’e basın.'
+      : 'Enter a Client ID first: create an app at developer.spotify.com/dashboard, add http://127.0.0.1:8989/login as a Redirect URI, then paste the Client ID here and press Save.';
+    $('clientId').focus();
+    $('clientId').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    return;
+  }
+  connecting = true; render(); await invoke('sp_connect');
+});
+listen('settings', (e) => { st = e.payload; render(); loadStats(); });
+
+/* ---------- listening summary ---------- */
+function dur(secs) {
+  secs = Math.max(0, Math.round(secs || 0));
+  const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
+  if (lang !== 'tr') return h ? h + ' h ' + m + ' min' : m ? m + ' min' : secs + ' s';
+  return h ? h + ' saat ' + m + ' dk' : m ? m + ' dk' : secs + ' sn';
+}
+function shortDur(secs) { const m = Math.round((secs || 0) / 60); return m >= 60 ? (m / 60).toFixed(1) + (lang !== 'tr' ? ' h' : ' sa') : m ? m + (lang !== 'tr' ? ' min' : ' dk') : (secs || 0) + (lang !== 'tr' ? ' s' : ' sn'); }
+function rows(el, list) {
+  el.textContent = '';
+  (list || []).slice(0, 5).forEach((it) => {
+    const r = document.createElement('div'); r.className = 'st-row';
+    const a = document.createElement('span'); a.textContent = it.name; a.title = it.name;
+    const b = document.createElement('em'); b.textContent = shortDur(it.secs);
+    r.append(a, b); el.append(r);
+  });
+}
+function renderStats(s) {
+  const on = !!st.listeningStats;
+  $('statsSec').classList.toggle('off', !on);
+  if (!on || !s) return;
+  if (!s.todaySecs && !s.weekSecs) { $('stHero').textContent = t('statsEmpty'); }
+  else $('stHero').innerHTML = t('statsToday', dur(s.todaySecs), s.topArtistToday ? s.topArtistToday.replace(/[<>&]/g, '') : '') + ' ' + t('statsWeek', dur(s.weekSecs));
+  const bars = s.dailyBars || [], max = Math.max(1, ...bars.map((b) => b.secs || 0));
+  const box = $('stBars'); box.textContent = '';
+  bars.forEach((b, i) => {
+    const d = new Date(b.date + 'T12:00:00');
+    const col = document.createElement('div'); col.className = 'st-bar' + (i === bars.length - 1 ? ' today' : '');
+    col.title = dur(b.secs);
+    const bar = document.createElement('i'); bar.style.height = '3px';
+    const lbl = document.createElement('span'); lbl.textContent = t('days')[d.getDay()];
+    col.append(bar, lbl); box.append(col);
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.height = Math.max(3, (b.secs || 0) / max * 72) + 'px'; }));
+  });
+  rows($('stArtists'), s.topArtistsWeek);
+  rows($('stTracks'), s.topTracksWeek);
+}
+async function loadStats() { try { renderStats(await invoke('get_stats')); } catch {} }
+listen('stats', (e) => renderStats(e.payload));
+setInterval(loadStats, 30000);
+listen('sp-state', (e) => { if (e.payload && e.payload.error) { connecting = false; $('idMsg').className = 'msg err'; $('idMsg').textContent = e.payload.error; } });
+invoke('get_settings').then((s) => { st = s; render(); loadStats(); });
+// macOS: permissions are granted in System Settings -> refresh their state when the window comes back
+window.addEventListener('focus', () => { if (IS_MAC) invoke('get_settings').then((s) => { st = s; render(); }); });
+</script>
+</body>
+</html>
